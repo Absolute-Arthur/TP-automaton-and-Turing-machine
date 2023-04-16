@@ -38,26 +38,62 @@ class State {
 	public String toString() {
 		return name();
 	}
-}
 
-class StatesPrinter {
-	public static String print(Set<State> states) {
-		String result = "[";
-		Iterator<State> statesIterator = states.iterator();
-		if(statesIterator.hasNext()) result = result + statesIterator.next().name();
-		while(statesIterator.hasNext()) {
-			result = result + ", " + statesIterator.next().name();
-		}
-		result = result + "]";
-		return result;
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof State))
+			return false;
+		State other = (State)o;
+		return name.equals(other.name());
 	}
 }
 
 class Letter {
-	public char name;
+	private char name;
 
 	public Letter(char name){
 		this.name = name;
+	}
+	
+	public char name() {
+		return name;
+	}
+
+	public String toString() {
+		return String.valueOf(name());
+	}
+
+	public int hashCode() {
+		return name;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Letter))
+			return false;
+			Letter other = (Letter)o;
+		return name == other.name();
+	}
+}
+
+class SetPrinter<T> {
+	public static <T> String print(Set<T> Ts) {
+		String result = "[";
+		Iterator<T> TsIterator = Ts.iterator();
+		if(TsIterator.hasNext()) result = result + TsIterator.next();
+		while(TsIterator.hasNext()) {
+			result = result + ", " + TsIterator.next();
+		}
+		result = result + "]";
+		return result;
 	}
 }
 
@@ -71,28 +107,59 @@ class Console {
 			2) The letters of the alphabet
 			3) The transitions
 			""");
-			Scanner input = new Scanner(System.in);
-			String currentStringInput;
-			Set<State> states = new HashSet<State>();
+		Scanner input = new Scanner(System.in);
+		String currentStringInput;
 
-			do {
-				System.out.print("State name : ");
-				currentStringInput = input.nextLine();
-				if(currentStringInput == "") System.out.println("You need to have at least one state");
-			} while (currentStringInput == "");
+		/* Begin states registration */
+		System.out.println("Let's define the states");
+		Set<State> states = new HashSet<State>();
 
-			states.add(new State(currentStringInput));
+		do {
+			System.out.print("State name : ");
+			currentStringInput = input.nextLine();
+			if(currentStringInput == "") System.out.println("You need to have at least one state");
+		} while (currentStringInput == "");
 
-			do {
-				System.out.println("Current states : " + StatesPrinter.print(states));
-				System.out.print("State name : ");
-				currentStringInput = input.nextLine();
-				if(currentStringInput != "") states.add(new State(currentStringInput));
-			} while(currentStringInput != "");
-			
-			System.out.println("The states will be : " + StatesPrinter.print(states));
-			input.close();
+		states.add(new State(currentStringInput));
+
+		do {
+			System.out.println("Current states : " + SetPrinter.print(states));
+			System.out.print("State name : ");
+			currentStringInput = input.nextLine();
+			if(currentStringInput != "") states.add(new State(currentStringInput));
+		} while(currentStringInput != "");
+		
+		System.out.println("The states will be : " + SetPrinter.print(states));
+		System.out.println();
+		/* End states registration */
+		
+		/* Begin alphabet registration */
+		System.out.println("Let's define the alphabet");
+		Set<Letter> alphabet = new HashSet<Letter>();
+
+		do {
+			System.out.print("Letter : ");
+			currentStringInput = input.nextLine();
+			if (currentStringInput == "") System.out.println("You need to have at least one character");
+			else {
+				if (currentStringInput.length() > 1) System.out.println("The first character will be used");
+				alphabet.add(new Letter(currentStringInput.charAt(0)));
+			}
+		} while (currentStringInput == "");
+
+		do {
+			System.out.println("Current alphabet : " + SetPrinter.print(alphabet));
+			System.out.print("Letter : ");
+			currentStringInput = input.nextLine();
+			if(currentStringInput != "") {
+				if (currentStringInput.length() > 1) System.out.println("The first character will be used");
+				alphabet.add(new Letter(currentStringInput.charAt(0)));
+			}
+		} while(currentStringInput != "");
+		
+		System.out.println("The alphabet will be : " + SetPrinter.print(alphabet));
+		/* End alphabet registration */
+
+		input.close();
 	}
 }
-
-
