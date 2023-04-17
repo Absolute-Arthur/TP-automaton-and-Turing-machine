@@ -1,6 +1,9 @@
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -12,13 +15,13 @@ public class Main {
 }
 
 class FiniteAutomaton {
-	private Set<State> states; // Each state is given a number
+	private List<State> states; // Each state is given a number
 	private Set<Letter> alphabet; // The alphabet is composed of letters
 	// During a transition, I am in a state, I am given a letter, I must know which states it need to go from there.
 	// Therefore, I check this list, select the state I am on, then select the letter I got to find where I need to go
 	private Map<State,Map<Letter,State>> transitions;
 
-	public FiniteAutomaton (Set<State> states, Set<Letter> alphabet, Map<State,Map<Letter,State>> transitions) {
+	public FiniteAutomaton (List<State> states, Set<Letter> alphabet, Map<State,Map<Letter,State>> transitions) {
 		this.states = states;
 		this.alphabet = alphabet;
 		this.transitions = transitions;
@@ -85,8 +88,8 @@ class Letter {
 	}
 }
 
-class SetPrinter<T> {
-	public static <T> String print(Set<T> Ts) {
+class CollectionPrinter<T> {
+	public static <T> String print(Collection<T> Ts) {
 		String result = "[";
 		Iterator<T> TsIterator = Ts.iterator();
 		if(TsIterator.hasNext()) result = result + TsIterator.next();
@@ -123,24 +126,27 @@ class Console {
 
 		/* Begin states registration */
 		System.out.println("Let's define the states");
-		Set<State> states = new HashSet<State>();
+		List<State> states = new LinkedList<State>();
+		boolean returned;
 
 		do {
+			returned = false;
+			System.out.println("Current states : " + CollectionPrinter.print(states));
 			System.out.print("State name : ");
 			currentStringInput = input.nextLine();
-			if(currentStringInput == "") System.out.println("You need to have at least one state");
-		} while (currentStringInput == "");
+			if(currentStringInput == "") {
+				if(states.size() == 0) {
+					System.out.println("You need to have at least one state");
+				}
+				else returned = true;
+			}
+			else if(states.contains(new State(currentStringInput))) {
+				System.out.println("The state already exists");
+			}
+			else states.add(new State(currentStringInput));
+		} while (!returned);
 
-		states.add(new State(currentStringInput));
-
-		do {
-			System.out.println("Current states : " + SetPrinter.print(states));
-			System.out.print("State name (return to end) : ");
-			currentStringInput = input.nextLine();
-			if(currentStringInput != "") states.add(new State(currentStringInput));
-		} while(currentStringInput != "");
-		
-		System.out.println("The states will be : " + SetPrinter.print(states));
+		System.out.println("The states will be : " + CollectionPrinter.print(states));
 		System.out.println();
 		/* End states registration */
 		
@@ -159,7 +165,7 @@ class Console {
 		} while (currentStringInput == "");
 
 		do {
-			System.out.println("Current alphabet : " + SetPrinter.print(alphabet));
+			System.out.println("Current alphabet : " + CollectionPrinter.print(alphabet));
 			System.out.print("Letter (return to end) : ");
 			currentStringInput = input.nextLine();
 			if(currentStringInput != "") {
@@ -168,13 +174,12 @@ class Console {
 			}
 		} while(currentStringInput != "");
 		
-		System.out.println("The alphabet will be : " + SetPrinter.print(alphabet));
+		System.out.println("The alphabet will be : " + CollectionPrinter.print(alphabet));
 		System.out.println();
 		/* End alphabet registration */
 
 		/* Begin transition registration */
 		System.out.println("Let's define the transitions");
-		boolean returned;
 		boolean repeat;
 		State originState;
 		State destinationState;
@@ -245,6 +250,6 @@ class Console {
 		/* End transition registration */
 		input.close();
 
-		new FiniteAutomaton(states, alphabet, transitions);
+		FiniteAutomaton automaton = new FiniteAutomaton(states, alphabet, transitions);
 	}
 }
