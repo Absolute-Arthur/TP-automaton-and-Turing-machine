@@ -42,15 +42,13 @@ class FiniteAutomaton {
 		output.add(stateLine2.toString());
 		output.add(stateLine3.toString());
 
-		boolean reversed;
-
+		int above = 0;
+		int below = 0;
 		for(State originState : transitions.keySet()) {
 			for(Letter correspondingLetter : transitions.get(originState).keySet()) {
 				State destinationState = transitions.get(originState).get(correspondingLetter);
 				StringBuilder newLine = new StringBuilder();
-				//System.out.println(originState + " --" + correspondingLetter + "-> " + transitions.get(originState).get(correspondingLetter));
 				if(states.indexOf(originState) < states.indexOf(destinationState)) {
-					reversed = false;
 					int amountOfSpaces = 0;
 					for(State state : states.subList(0, states.indexOf(originState))) {
 						amountOfSpaces += state.name().length() + 3;
@@ -68,9 +66,25 @@ class FiniteAutomaton {
 					newLine.append("─".repeat(amountOfDashes));
 					newLine.append(">");
 					newLine.append("┐");
+					int indexBeginningOfArrow = newLine.indexOf("┌");
+					int indexEndOfArrow = newLine.indexOf("┐");
+					for(int i = 0; i < above ; i++) {
+						String lineToChange = output.get(i);
+						if(lineToChange.length() <= indexBeginningOfArrow) {
+							lineToChange = lineToChange.concat(" ".repeat(indexBeginningOfArrow-lineToChange.length()) + "│");
+						} else if(lineToChange.charAt(indexBeginningOfArrow) == ' ') {
+							lineToChange = lineToChange.substring(0, indexBeginningOfArrow) + "│" + lineToChange.substring(indexBeginningOfArrow + 1);
+						}
+						if(lineToChange.length() <= indexEndOfArrow) {
+							lineToChange = lineToChange.concat(" ".repeat(indexEndOfArrow-lineToChange.length()) + "│");
+						} else if(lineToChange.charAt(indexEndOfArrow) == ' ') {
+							lineToChange = lineToChange.substring(0, indexEndOfArrow) + "│" + lineToChange.substring(indexEndOfArrow + 1);
+						}
+						output.set(i, lineToChange);
+					}
+					above++;
 					output.add(0, newLine.toString());
 				} else {
-					reversed = true;
 					int amountOfSpaces = 0;
 					for(State state : states.subList(0, states.indexOf(destinationState))) {
 						amountOfSpaces += state.name().length() + 3;
@@ -88,6 +102,23 @@ class FiniteAutomaton {
 					newLine.append("─".repeat(amountOfDashes));
 					newLine.append(correspondingLetter);
 					newLine.append("┘");
+					int indexBeginningOfArrow = newLine.indexOf("└");
+					int indexEndOfArrow = newLine.indexOf("┘");
+					for(int i = output.size()-1 ; i > output.size()-1-below ; i--) {
+						String lineToChange = output.get(i);
+						if(lineToChange.length() <= indexBeginningOfArrow) {
+							lineToChange = lineToChange.concat(" ".repeat(indexBeginningOfArrow-lineToChange.length()) + "│");
+						} else if(lineToChange.charAt(indexBeginningOfArrow) == ' ') {
+							lineToChange = lineToChange.substring(0, indexBeginningOfArrow) + "│" + lineToChange.substring(indexBeginningOfArrow + 1);
+						}
+						if(lineToChange.length() <= indexEndOfArrow) {
+							lineToChange = lineToChange.concat(" ".repeat(indexEndOfArrow-lineToChange.length()) + "│");
+						} else if(lineToChange.charAt(indexEndOfArrow) == ' ') {
+							lineToChange = lineToChange.substring(0, indexEndOfArrow) + "│" + lineToChange.substring(indexEndOfArrow + 1);
+						}
+						output.set(i, lineToChange);
+					}
+					below++;
 					output.add(newLine.toString());
 				}
 			}
