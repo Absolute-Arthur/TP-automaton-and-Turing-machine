@@ -126,6 +126,29 @@ class FiniteAutomaton {
 
 		for (String line : output) System.out.println(line);
 	}
+
+	public boolean verify(String word) {
+		State currentState = states.get(0);
+		for(char dassaut : word.toCharArray()) {
+			Letter letter = new Letter(dassaut);
+			if(!alphabet.contains(letter)) {
+				System.out.println("The letter " + dassaut + " is not in the alphabet");
+				return false;
+			}
+			if(!transitions.containsKey(currentState)) {
+				System.out.println("The state does not have a transition for the letter " + dassaut);
+				return false;
+			}
+			if(!transitions.get(currentState).containsKey(letter)) {
+				System.out.println("The state does not have a transition for the letter " + dassaut);
+				return false;
+			}
+			currentState = transitions.get(currentState).get(letter);
+			System.out.println(currentState);
+		}
+		System.out.println("The word is valid for this automaton");
+		return true;
+	}
 }
 
 class State {
@@ -225,7 +248,7 @@ class Console {
 		String currentStringInput;
 
 		/* Begin states registration */
-		System.out.println("Let's define the states");
+		System.out.println("Let's define the states (the first will be used as starting state)");
 		List<State> states = new LinkedList<State>();
 		boolean returned;
 
@@ -351,10 +374,14 @@ class Console {
 			TransitionsPrinter.print(transitions);
 		} while(!returned);
 		/* End transition registration */
-		input.close();
 
 		FiniteAutomaton automaton = new FiniteAutomaton(states, alphabet, transitions);
 		
 		automaton.print();
+		while(true) {
+			System.out.println("Please enter a word, to verify if it works with the automaton :");
+			String word = input.nextLine();
+			automaton.verify(word);
+		}
 	}
 }
