@@ -26,6 +26,75 @@ class FiniteAutomaton {
 		this.alphabet = alphabet;
 		this.transitions = transitions;
 	}
+	
+	public void print() {
+		List<String> output = new LinkedList<String>();
+		StringBuilder stateLine1 = new StringBuilder();
+		StringBuilder stateLine2 = new StringBuilder();
+		StringBuilder stateLine3 = new StringBuilder();
+
+		for(State state : states) {
+			stateLine1.append("┌" + "─".repeat(state.name().length()) + "┐ ");
+			stateLine2.append("│" + state.name() + "│ ");
+			stateLine3.append("└" + "─".repeat(state.name().length()) + "┘ ");
+		}
+		output.add(stateLine1.toString());
+		output.add(stateLine2.toString());
+		output.add(stateLine3.toString());
+
+		boolean reversed;
+
+		for(State originState : transitions.keySet()) {
+			for(Letter correspondingLetter : transitions.get(originState).keySet()) {
+				State destinationState = transitions.get(originState).get(correspondingLetter);
+				StringBuilder newLine = new StringBuilder();
+				//System.out.println(originState + " --" + correspondingLetter + "-> " + transitions.get(originState).get(correspondingLetter));
+				if(states.indexOf(originState) < states.indexOf(destinationState)) {
+					reversed = false;
+					int amountOfSpaces = 0;
+					for(State state : states.subList(0, states.indexOf(originState))) {
+						amountOfSpaces += state.name().length() + 3;
+					}
+					amountOfSpaces += Math.ceil((originState.name().length()+2)/2);
+					newLine.append(" ".repeat(amountOfSpaces));
+					newLine.append("┌");
+					newLine.append(correspondingLetter);
+					int amountOfDashes = 0;
+					for(State state : states.subList(0, states.indexOf(destinationState))) {
+						amountOfDashes += state.name().length() + 3;
+					}
+					amountOfDashes -= amountOfSpaces + 4;
+					amountOfDashes += Math.floor((destinationState.name().length()+2)/2);
+					newLine.append("─".repeat(amountOfDashes));
+					newLine.append(">");
+					newLine.append("┐");
+					output.add(0, newLine.toString());
+				} else {
+					reversed = true;
+					int amountOfSpaces = 0;
+					for(State state : states.subList(0, states.indexOf(destinationState))) {
+						amountOfSpaces += state.name().length() + 3;
+					}
+					amountOfSpaces += Math.ceil((destinationState.name().length()+2)/2);
+					newLine.append(" ".repeat(amountOfSpaces));
+					newLine.append("└");
+					newLine.append("<");
+					int amountOfDashes = 0;
+					for(State state : states.subList(0, states.indexOf(originState))) {
+						amountOfDashes += state.name().length() + 3;
+					}
+					amountOfDashes -= amountOfSpaces + 4;
+					amountOfDashes += Math.floor((originState.name().length()+2)/2);
+					newLine.append("─".repeat(amountOfDashes));
+					newLine.append(correspondingLetter);
+					newLine.append("┘");
+					output.add(newLine.toString());
+				}
+			}
+		}
+
+		for (String line : output) System.out.println(line);
+	}
 }
 
 class State {
@@ -132,7 +201,7 @@ class Console {
 		do {
 			returned = false;
 			System.out.println("Current states : " + CollectionPrinter.print(states));
-			System.out.print("State name : ");
+			System.out.print("State name (return to finish) : ");
 			currentStringInput = input.nextLine();
 			if(currentStringInput == "") {
 				if(states.size() == 0) {
@@ -159,7 +228,7 @@ class Console {
 		do {
 			returned = false;
 			System.out.println("Alphabet : " + CollectionPrinter.print(alphabet));
-			System.out.print("Letter : ");
+			System.out.print("Letter (return to finish): ");
 			currentStringInput = input.nextLine();
 			if(currentStringInput == "") {
 				if(alphabet.size() == 0) {
@@ -254,5 +323,7 @@ class Console {
 		input.close();
 
 		FiniteAutomaton automaton = new FiniteAutomaton(states, alphabet, transitions);
+		
+		automaton.print();
 	}
 }
