@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,12 +16,12 @@ class FiniteAutomaton {
 	private Set<Letter> alphabet; // The alphabet is composed of letters
 	// During a transition, I am in a state, I am given a letter, I must know which states it need to go from there.
 	// Therefore, I check this list, select the state I am on, then select the letter I got to find where I need to go
-	private Set<Map<String,Set<Map<Character,String>>>> transition;
+	private Map<State,Map<Letter,State>> transitions;
 
-	public FiniteAutomaton (Set<State> states, Set<Letter> alphabet, Set<Map<String,Set<Map<Character,String>>>> transition) {
+	public FiniteAutomaton (Set<State> states, Set<Letter> alphabet, Map<State,Map<Letter,State>> transitions) {
 		this.states = states;
 		this.alphabet = alphabet;
-		this.transition = transition;
+		this.transitions = transitions;
 	}
 }
 
@@ -97,6 +98,16 @@ class SetPrinter<T> {
 	}
 }
 
+class TransitionsPrinter {
+	public static void print(Map<State,Map<Letter,State>> transitions) {
+		for(State originState : transitions.keySet()) {
+			for(Letter correspondingLetter : transitions.get(originState).keySet()) {
+				System.out.println(originState + " --" + correspondingLetter + "-> " + transitions.get(originState).get(correspondingLetter));
+			}
+		}
+	}
+}
+
 class Console {
 	public static void console() {
 		System.out.println("""
@@ -124,7 +135,7 @@ class Console {
 
 		do {
 			System.out.println("Current states : " + SetPrinter.print(states));
-			System.out.print("State name : ");
+			System.out.print("State name (return to end) : ");
 			currentStringInput = input.nextLine();
 			if(currentStringInput != "") states.add(new State(currentStringInput));
 		} while(currentStringInput != "");
@@ -149,7 +160,7 @@ class Console {
 
 		do {
 			System.out.println("Current alphabet : " + SetPrinter.print(alphabet));
-			System.out.print("Letter : ");
+			System.out.print("Letter (return to end) : ");
 			currentStringInput = input.nextLine();
 			if(currentStringInput != "") {
 				if (currentStringInput.length() > 1) System.out.println("The first character will be used");
@@ -158,8 +169,81 @@ class Console {
 		} while(currentStringInput != "");
 		
 		System.out.println("The alphabet will be : " + SetPrinter.print(alphabet));
+		System.out.println();
 		/* End alphabet registration */
 
+		/* Begin transition registration */
+		System.out.println("Let's define the transitions");
+		boolean returned;
+		boolean repeat;
+		State originState;
+		State destinationState;
+		Letter correspondingLetter;
+		Map<State,Map<Letter,State>> transitions = new HashMap<State,Map<Letter,State>>();
+		do {
+			originState = null;
+			destinationState = null;
+			correspondingLetter = null;
+			returned = false;
+			repeat = false;
+			do {
+				System.out.println("Origin state (return to end) : ");
+				currentStringInput = input.nextLine();
+				if(currentStringInput == "") returned = true;
+				else {
+					if(!states.contains(new State(currentStringInput))) {
+						System.out.println("The state does not exist");
+						repeat = true;
+					}
+				}
+			} while (repeat && !returned);
+			if(!returned) {
+				originState = new State(currentStringInput);
+
+				repeat = false;
+				do {
+					System.out.println("Destination state : ");
+					currentStringInput = input.nextLine();
+					if(!states.contains(new State(currentStringInput))) {
+						System.out.println("The state does not exist");
+						repeat = true;
+					}
+				} while(repeat);
+				destinationState = new State(currentStringInput);
+
+				
+				repeat = false;
+				do {
+					System.out.println("Corresponding letter : ");
+					currentStringInput = input.nextLine();
+					if(!alphabet.contains(new Letter(currentStringInput.charAt(0)))) {
+						System.out.println("The letter is not in the alphabet");
+						repeat = true;
+					}
+				} while(repeat);
+				correspondingLetter = new Letter(currentStringInput.charAt(0));
+			}
+			if(!returned) {
+				if(transitions.containsKey(originState)) {
+					Map<Letter,State> existingMap = transitions.get(originState);
+					if(existingMap.containsKey(correspondingLetter)) {
+						System.out.println("The letter for this origin state is already set");
+					} else {
+						existingMap.put(correspondingLetter, destinationState);
+						transitions.replace(originState, existingMap);
+					}
+				} else {
+					Map<Letter,State> newMap = new HashMap<Letter,State>();
+					newMap.put(correspondingLetter, destinationState);
+					transitions.put(originState, newMap);
+				}
+			}
+			System.out.println("The current transitions are : ");
+			TransitionsPrinter.print(transitions);
+		} while(!returned);
+		/* End transition registration */
 		input.close();
+
+		new FiniteAutomaton(states, alphabet, transitions);
 	}
 }
