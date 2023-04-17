@@ -187,6 +187,7 @@ class Console {
 			returned = false;
 			repeat = false;
 			do {
+				repeat = false;
 				System.out.println("Origin state (return to end) : ");
 				currentStringInput = input.nextLine();
 				if(currentStringInput == "") returned = true;
@@ -200,8 +201,8 @@ class Console {
 			if(!returned) {
 				originState = new State(currentStringInput);
 
-				repeat = false;
 				do {
+					repeat = false;
 					System.out.println("Destination state : ");
 					currentStringInput = input.nextLine();
 					if(!states.contains(new State(currentStringInput))) {
@@ -212,8 +213,8 @@ class Console {
 				destinationState = new State(currentStringInput);
 
 				
-				repeat = false;
 				do {
+					repeat = false;
 					System.out.println("Corresponding letter : ");
 					currentStringInput = input.nextLine();
 					if(!alphabet.contains(new Letter(currentStringInput.charAt(0)))) {
