@@ -154,25 +154,28 @@ class Console {
 		System.out.println("Let's define the alphabet");
 		Set<Letter> alphabet = new HashSet<Letter>();
 
-		do {
-			System.out.print("Letter : ");
-			currentStringInput = input.nextLine();
-			if (currentStringInput == "") System.out.println("You need to have at least one character");
-			else {
-				if (currentStringInput.length() > 1) System.out.println("The first character will be used");
-				alphabet.add(new Letter(currentStringInput.charAt(0)));
-			}
-		} while (currentStringInput == "");
+		char currentLetterInput;
 
 		do {
-			System.out.println("Current alphabet : " + CollectionPrinter.print(alphabet));
-			System.out.print("Letter (return to end) : ");
+			returned = false;
+			System.out.println("Alphabet : " + CollectionPrinter.print(alphabet));
+			System.out.print("Letter : ");
 			currentStringInput = input.nextLine();
-			if(currentStringInput != "") {
-				if (currentStringInput.length() > 1) System.out.println("The first character will be used");
-				alphabet.add(new Letter(currentStringInput.charAt(0)));
+			if(currentStringInput == "") {
+				if(alphabet.size() == 0) {
+					System.out.println("You need to have at least one letter");
+				}
+				else returned = true;
 			}
-		} while(currentStringInput != "");
+			else {
+				if(currentStringInput.length() > 1) System.out.println("The first character will be used");
+				currentLetterInput = currentStringInput.charAt(0);
+				if(alphabet.contains(new Letter(currentLetterInput))) {
+					System.out.println("The letter already exists");
+				}
+				else alphabet.add(new Letter(currentLetterInput));
+			}
+		} while (!returned);
 		
 		System.out.println("The alphabet will be : " + CollectionPrinter.print(alphabet));
 		System.out.println();
